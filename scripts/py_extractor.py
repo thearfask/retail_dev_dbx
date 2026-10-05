@@ -9,11 +9,10 @@ import requests
 
 # Configuration
 BASE_URL = "https://dummyjson.com"
-LANDING_ROOT = Path(
-    "/Workspace/Users/arfaashaikh101@gmail.com/retail_dev_dbx/landing"
-)
+
 ENTITIES = ["users", "products", "carts"]
 DBX_VOL = "/Volumes/workspace/retail_dev_schema/retail_dev_dbx_vol"
+LANDING_ROOT = Path(DBX_VOL) / "landing"
 
 def fetch_all_pages(entity, page_size=20):
     if page_size <= 0:
