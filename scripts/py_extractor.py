@@ -106,6 +106,26 @@ def extract_batch(batch_id):
     print(f"Batch {batch_id} completed")
 
 
+def archive_batch(batch_id):
+    source = get_batch_path(batch_id)
+    archive_root = LANDING_ROOT.parent / "archive"
+    destination = archive_root / source.name
+
+    if not source.is_dir():
+        raise FileNotFoundError(f"Landing batch missing: {source}")
+
+    if not (source / "_SUCCESS").exists():
+        raise RuntimeError("Extraction is incomplete")
+
+    if destination.exists():
+        raise FileExistsError(f"Archive batch already exists: {destination}")
+
+    archive_root.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(source), str(destination))
+
+    print(f"Archived: {source} → {destination}")
+
+
 def delete_batch(batch_id):
     batch_path = get_batch_path(batch_id)
 
