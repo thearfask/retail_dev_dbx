@@ -1,0 +1,76 @@
+contract_version: "1.0"
+
+entities:
+  users:
+    filename: users.jsonl
+    schema_policy: additive
+    max_reject_ratio: 0.0
+
+    source_schema: |
+      id BIGINT,
+      firstName STRING,
+      lastName STRING,
+      email STRING,
+      address STRUCT<country: STRING>
+
+    columns:
+      - {source: id, target: id, required: true}
+      - {source: firstName, target: first_name}
+      - {source: lastName, target: last_name}
+      - {source: email, target: email}
+      - {source: address.country, target: country}
+
+  products:
+    filename: products.jsonl
+    schema_policy: additive
+    max_reject_ratio: 0.0
+
+    source_schema: |
+      id BIGINT,
+      title STRING,
+      category STRING,
+      brand STRING,
+      price DECIMAL(18,2),
+      discountPercentage DECIMAL(10,2),
+      stock BIGINT
+
+    columns:
+      - {source: id, target: id, required: true}
+      - {source: title, target: title}
+      - {source: category, target: category}
+      - {source: brand, target: brand}
+      - {source: price, target: price}
+      - {source: discountPercentage, target: discount_percentage}
+      - {source: stock, target: stock}
+
+  carts:
+    filename: carts.jsonl
+    schema_policy: additive
+    max_reject_ratio: 0.0
+
+    source_schema: |
+      id BIGINT,
+      userId BIGINT,
+      products ARRAY<STRUCT<
+        id: BIGINT,
+        title: STRING,
+        price: DECIMAL(18,2),
+        quantity: BIGINT,
+        total: DECIMAL(18,2),
+        discountPercentage: DECIMAL(10,2),
+        discountedTotal: DECIMAL(18,2),
+        thumbnail: STRING
+      >>,
+      total DECIMAL(18,2),
+      discountedTotal DECIMAL(18,2),
+      totalProducts BIGINT,
+      totalQuantity BIGINT
+
+    columns:
+      - {source: id, target: id, required: true}
+      - {source: userId, target: user_id, required: true}
+      - {source: products, target: products}
+      - {source: total, target: total}
+      - {source: discountedTotal, target: discounted_total}
+      - {source: totalProducts, target: total_products}
+      - {source: totalQuantity, target: total_quantity}
