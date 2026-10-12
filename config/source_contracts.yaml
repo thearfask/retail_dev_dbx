@@ -1,76 +1,97 @@
-contract_version: "1.0"
+contract_version: "retail-1.0"
 
-entities:
-  users:
-    filename: users.jsonl
-    schema_policy: additive
-    max_reject_ratio: 0.0
+source:
+  url: https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip
+  workbook: online_retail_II.xlsx
+  start_date: "2009-12-01"
+  end_date_exclusive: "2011-12-10"
+  historical_end_exclusive: "2011-11-30"
 
-    source_schema: |
-      id BIGINT,
-      firstName STRING,
-      lastName STRING,
-      email STRING,
-      address STRUCT<country: STRING>
+environment:
+  catalog: workspace
+  schema: retail_dev_schema
+  volume: retail_dev_dbx_vol
 
-    columns:
-      - {source: id, target: id, required: true}
-      - {source: firstName, target: first_name}
-      - {source: lastName, target: last_name}
-      - {source: email, target: email}
-      - {source: address.country, target: country}
+schemas:
+  source: |
+    record_id STRING,
+    invoice STRING,
+    stock_code STRING,
+    description STRING,
+    quantity STRING,
+    invoice_date STRING,
+    unit_price STRING,
+    customer_id STRING,
+    country STRING,
+    source_sheet STRING,
+    source_row BIGINT
 
-  products:
-    filename: products.jsonl
-    schema_policy: additive
-    max_reject_ratio: 0.0
+  bronze: |
+    record_id STRING,
+    raw_record STRING,
+    source_date DATE,
+    batch_id STRING,
+    ingestion_run_id STRING,
+    source_uri STRING,
+    source_file STRING,
+    source_checksum STRING,
+    contract_version STRING,
+    contract_checksum STRING,
+    ingested_at TIMESTAMP
 
-    source_schema: |
-      id BIGINT,
-      title STRING,
-      category STRING,
-      brand STRING,
-      price DECIMAL(18,2),
-      discountPercentage DECIMAL(10,2),
-      stock BIGINT
+  quarantine: |
+    record_id STRING,
+    raw_record STRING,
+    batch_id STRING,
+    ingestion_run_id STRING,
+    rejection_reason STRING,
+    rejected_at TIMESTAMP
 
-    columns:
-      - {source: id, target: id, required: true}
-      - {source: title, target: title}
-      - {source: category, target: category}
-      - {source: brand, target: brand}
-      - {source: price, target: price}
-      - {source: discountPercentage, target: discount_percentage}
-      - {source: stock, target: stock}
+  monitoring: |
+    batch_id STRING,
+    ingestion_run_id STRING,
+    trigger_type STRING,
+    load_type STRING,
+    status STRING,
+    window_start DATE,
+    window_end DATE,
+    source_uri STRING,
+    source_checksum STRING,
+    contract_checksum STRING,
+    expected_count BIGINT,
+    accepted_count BIGINT,
+    rejected_count BIGINT,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    error_message STRING,
+    original_success_run_id STRING
 
-  carts:
-    filename: carts.jsonl
-    schema_policy: additive
-    max_reject_ratio: 0.0
+  silver_order_items: |
+    record_id STRING,
+    invoice STRING,
+    stock_code STRING,
+    description STRING,
+    quantity BIGINT,
+    invoice_at TIMESTAMP_NTZ,
+    unit_price DECIMAL(18,4),
+    customer_id STRING,
+    country STRING,
+    source_date DATE,
+    batch_id STRING,
+    ingestion_run_id STRING,
+    is_cancellation BOOLEAN,
+    line_amount DECIMAL(28,4)
 
-    source_schema: |
-      id BIGINT,
-      userId BIGINT,
-      products ARRAY<STRUCT<
-        id: BIGINT,
-        title: STRING,
-        price: DECIMAL(18,2),
-        quantity: BIGINT,
-        total: DECIMAL(18,2),
-        discountPercentage: DECIMAL(10,2),
-        discountedTotal: DECIMAL(18,2),
-        thumbnail: STRING
-      >>,
-      total DECIMAL(18,2),
-      discountedTotal DECIMAL(18,2),
-      totalProducts BIGINT,
-      totalQuantity BIGINT
+  silver_customers_current: |
+    customer_id STRING,
+    country STRING,
+    attribute_hash STRING,
+    updated_at TIMESTAMP
 
-    columns:
-      - {source: id, target: id, required: true}
-      - {source: userId, target: user_id, required: true}
-      - {source: products, target: products}
-      - {source: total, target: total}
-      - {source: discountedTotal, target: discounted_total}
-      - {source: totalProducts, target: total_products}
-      - {source: totalQuantity, target: total_quantity}
+  silver_customers_history: |
+    customer_id STRING,
+    country STRING,
+    attribute_hash STRING,
+    valid_from TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current BOOLEAN
