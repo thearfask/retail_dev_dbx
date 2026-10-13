@@ -29,3 +29,10 @@ DROP TABLE IF EXISTS workspace.retail_dev_schema.quarantine_records;
 
 -- Inventory remaining objects; unrelated tables are not removed.
 SHOW TABLES IN workspace.retail_dev_schema;
+
+-- Reset control history together with the lakehouse data.
+DROP TABLE IF EXISTS workspace.retail_dev_schema.control_events;
+DROP TABLE IF EXISTS workspace.retail_dev_schema.control_quarantine;
+DROP TABLE IF EXISTS workspace.retail_dev_schema.control_master;
+
+SHOW TABLES IN workspace.retail_dev_schema;

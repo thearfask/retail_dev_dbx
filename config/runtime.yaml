@@ -1,0 +1,71 @@
+environments:
+  dev:
+    catalog: workspace
+    schema: retail_dev_schema
+    volume: retail_dev_dbx_vol
+    allow_reset: false
+
+  test:
+    catalog: workspace
+    schema: retail_dev_schema_test
+    volume: retail_test_vol
+    allow_reset: true
+
+notebooks:
+  bronze: 01_load_bronze
+  silver: 02_load_silver
+  gold: 03_load_gold
+
+execution:
+  timeout_seconds: 3600
+  mode: incremental
+  initial_checkpoint_date: "2009-12-01"
+  till_date_checkpoint: "2010-01-15"
+  batch_days: 1
+  rerun:
+    start_date: null
+    end_date_exclusive: null
+    refresh: false
+
+test:
+  environment: test
+
+  # Reset only tables listed below, in the isolated test schema.
+  reset_tables: true
+
+  # Keep the downloaded original source to avoid downloading it every test.
+  reset_source_files: false
+
+  phases:
+    - name: historical
+      load_type: HISTORICAL
+      start: "2009-12-01"
+      end: "2010-01-01"
+
+    - name: incremental_1
+      load_type: INCREMENTAL_REPLAY
+      start: "2010-01-01"
+      end: "2010-01-08"
+
+    - name: incremental_2
+      load_type: INCREMENTAL_REPLAY
+      start: "2010-01-08"
+      end: "2010-01-15"
+
+tables:
+  bronze: bronze_transactions
+  legacy_monitoring: retail_monitoring
+  legacy_quarantine: retail_quarantine
+
+  silver_items: silver_order_items
+  silver_orders: silver_orders
+  silver_products: silver_products
+  silver_customers: silver_customers_current
+  silver_history: silver_customers_history
+
+  gold_daily: gold_daily_sales
+  gold_products: gold_product_sales
+
+  control_master: control_master
+  control_events: control_events
+  control_quarantine: control_quarantine
