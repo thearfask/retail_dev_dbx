@@ -1,0 +1,60 @@
+tables:
+  master: control_master
+  events: control_events
+  quarantine: control_quarantine
+
+schemas:
+  master: |
+    control_id STRING,
+    batch_id STRING,
+    run_id STRING,
+    layer STRING,
+    target_table STRING,
+    target_table_id STRING,
+    trigger_type STRING,
+    action STRING,
+    replay_of_control_id STRING,
+    window_start DATE,
+    window_end_exclusive DATE,
+    source_reference STRING,
+    source_checksum STRING,
+    code_version STRING,
+    config_checksum STRING,
+    expected_count BIGINT,
+    read_count BIGINT,
+    accepted_count BIGINT,
+    rejected_count BIGINT,
+    staged_count BIGINT,
+    committed_count BIGINT,
+    write_outcome STRING,
+    target_delta_version BIGINT,
+    write_id STRING,
+    final_status STRING,
+    failed_step STRING,
+    failure_reason STRING,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    updated_at TIMESTAMP
+
+  events: |
+    event_id STRING,
+    control_id STRING,
+    event_type STRING,
+    step_name STRING,
+    status STRING,
+    rule_id STRING,
+    affected_count BIGINT,
+    details_json STRING,
+    recorded_at TIMESTAMP
+
+  quarantine: |
+    quarantine_id STRING,
+    control_id STRING,
+    source_record_id STRING,
+    source_location STRING,
+    raw_payload STRING,
+    failed_rule_ids ARRAY<STRING>,
+    resolution_status STRING,
+    resolved_by_control_id STRING,
+    rejected_at TIMESTAMP,
+    resolved_at TIMESTAMP
