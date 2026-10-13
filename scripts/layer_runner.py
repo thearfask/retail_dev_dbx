@@ -10,14 +10,6 @@ import uuid
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
-
-import sys
-
-REPO_ROOT = "/Workspace/Users/arfaashaikh101@gmail.com/retail_dev_dbx"
-
-if REPO_ROOT not in sys.path:
-    sys.path.insert(0, REPO_ROOT)
-
 from scripts.control import ControlRecorder, merge_dataframe, utc_now
 from scripts.bronze_loader import checksum, prepare_source, table
 from scripts.transformations import create_layer_tables, build_silver, build_gold
