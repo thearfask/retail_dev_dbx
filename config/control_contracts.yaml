@@ -6,6 +6,18 @@ tables:
 schemas:
   master: |
     control_id STRING,
+    pipeline_key STRING,
+    pipeline_run_id STRING,
+    job_id STRING,
+    job_run_id STRING,
+    request_key STRING,
+    requested_till_date DATE,
+    checkpoint_before DATE,
+    checkpoint_after DATE,
+    landing_reference STRING,
+    archive_reference STRING,
+    archive_status STRING,
+    pipeline_validated BOOLEAN,
     batch_id STRING,
     run_id STRING,
     layer STRING,

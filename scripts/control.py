@@ -37,6 +37,7 @@ WRITE_OUTCOMES = {
     "NOT_STARTED",
     "COMMITTED",
     "UNKNOWN",
+    "NOT_APPLICABLE",
 }
 
 
@@ -81,7 +82,7 @@ def setup_control(spark, namespace, yaml_path):
     """
     Create only the three control tables.
 
-    Does not drop, truncate, or alter existing data.
+    Does not drop or truncate data. Approved new control columns are added.
     """
     parts = namespace.split(".")
 
@@ -129,11 +130,26 @@ def setup_control(spark, namespace, yaml_path):
             for field in approved_schema
         }
 
-        if existing != approved:
+        removed = set(existing) - set(approved)
+        changed = [
+            name for name in set(existing) & set(approved)
+            if existing[name] != approved[name]
+        ]
+        if removed or changed:
             raise ValueError(
-                f"Schema mismatch for {target}; "
-                "an explicit migration is required"
+                f"Breaking control schema change for {target}: "
+                f"removed={removed}, changed={changed}"
             )
+        additions = [
+            field for field in approved_schema
+            if field.name not in existing
+        ]
+        if additions:
+            columns = ", ".join(
+                f"`{field.name}` {field.dataType.simpleString()}"
+                for field in additions
+            )
+            spark.sql(f"ALTER TABLE {target} ADD COLUMNS ({columns})")
 
         result["tables"][role] = target
         result["schemas"][role] = approved_schema
@@ -198,7 +214,7 @@ class ControlRecorder:
         code_version=None,
         config_checksum=None,
     ):
-        if layer.upper() not in {"BRONZE", "SILVER", "GOLD"}:
+        if layer.upper() not in {"BRONZE", "SILVER", "GOLD", "PIPELINE"}:
             raise ValueError("Invalid layer")
 
         if trigger_type not in {"MANUAL", "SCHEDULED"}:
@@ -538,7 +554,12 @@ class ControlRecorder:
             self.update(committed_count=0)
 
         if status in {"SUCCEEDED", "ACCEPTED_WITH_REJECTS"}:
-            if self.master["write_outcome"] != "COMMITTED":
+            if self.master["layer"] == "PIPELINE":
+                if self.master.get("checkpoint_after") is None:
+                    raise ValueError("Pipeline success requires checkpoint_after")
+                if self.master.get("pipeline_validated") is not True:
+                    raise ValueError("Pipeline success requires verified layer outcomes")
+            elif self.master["write_outcome"] != "COMMITTED":
                 raise ValueError(
                     "Success requires verified committed-write evidence"
                 )

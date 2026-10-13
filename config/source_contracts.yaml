@@ -95,3 +95,29 @@ schemas:
     valid_from TIMESTAMP,
     valid_to TIMESTAMP,
     is_current BOOLEAN
+
+  silver_orders: |
+    invoice STRING,
+    invoice_at TIMESTAMP_NTZ,
+    line_count BIGINT,
+    units BIGINT,
+    signed_amount DECIMAL(38,4),
+    is_cancellation BOOLEAN
+
+  silver_products: |
+    stock_code STRING,
+    description STRING
+
+  gold_daily_sales: |
+    source_date DATE,
+    country STRING,
+    line_count BIGINT,
+    sale_invoice_count BIGINT,
+    gross_sales_gbp DECIMAL(38,4),
+    negative_adjustments_gbp DECIMAL(38,4),
+    net_signed_value_gbp DECIMAL(38,4)
+
+  gold_product_sales: |
+    stock_code STRING,
+    net_units BIGINT,
+    net_signed_value_gbp DECIMAL(38,4)
